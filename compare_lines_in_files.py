@@ -8,13 +8,14 @@ if len(sys.argv) == 1:
 
 class MultiLess:
 
-	def __init__(self, files, tabular=False, show_line_numbers=False, show_line_length=False):
+	def __init__(self, files, tabular=False, show_line_numbers=False, show_line_length=False, show_file_names=False):
 		self.all_lines = []
 		self.shortest_length = -1
 		self.files = files
 		self.tabular = tabular
 		self.show_line_numbers = show_line_numbers
 		self.show_line_length = show_line_length
+		self.show_file_names = show_file_names
 		self.currentIndex = 0
 		self.row_format = "{:<17}"
 
@@ -29,8 +30,13 @@ class MultiLess:
 		if self.show_line_numbers:
 			print("\n[" + str(self.currentIndex) + "]")
 
-		for docs in self.all_lines:
+		for index, docs in enumerate(self.all_lines):
 			line_str = ""
+
+			if self.show_file_names:
+				line_str += ">>> "
+				line_str += files[index]
+				line_str += "\n"
 
 			if self.show_line_length:
 				line_str += "("
@@ -60,11 +66,25 @@ class MultiLess:
 
 		if key == "n":
 			self.show_line_numbers = not self.show_line_numbers
+			self.print_line()
+			print()
 			self.handle_input()
 
 		if key == "l":
 			self.show_line_length = not self.show_line_length
+			self.print_line()
+			print()
 			self.handle_input()
+
+		if key == "f":
+			self.show_file_names = not self.show_file_names
+			self.print_line()
+			print()
+			self.handle_input()
+
+		if len(key) > 1 and key[0] == "j":
+			self.currentIndex += int(key[1:])
+			self.print_line()
 
 	def run(self):
 		for i in range(printer.shortest_length):
@@ -77,12 +97,15 @@ files = []
 tabular = False
 show_line_numbers = False
 show_line_length = False
+show_file_names = False
 
 for arg in sys.argv[1:]:
 	if arg == "-t" or arg == "--tabular":
 		tabular = True
 	elif arg == "-n" or arg == "--line-numbers":
 		show_line_numbers = True
+	elif arg == "-f" or arg == "--line-numbers":
+		show_file_names = True
 	elif arg == "-l" or arg == "--line-length":
 		show_line_length = True
 	else:
@@ -93,7 +116,8 @@ print("Press ENTER to continue or q to quit.")
 print("Press t to toggle tabular view.")
 print("Press n to toggle line index.")
 print("Press l to toggle line length.")
+print("Press f to toggle file names.")
 print()
 
-printer = MultiLess(files, tabular=tabular, show_line_numbers=show_line_numbers, show_line_length=show_line_length)
+printer = MultiLess(files, tabular=tabular, show_line_numbers=show_line_numbers, show_line_length=show_line_length, show_file_names=show_file_names)
 printer.run()
